@@ -1,0 +1,33 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: styletransfer
+  namespace: vision
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "1"
+        autoscaling.knative.dev/metric: "concurrency"
+    spec:
+      containers:
+        - image: fukouhei001/styletransfer-server:v0.0.2
+          env:
+            - name: APP_PORT
+              value: "80"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            timeoutSeconds: 1
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            timeoutSeconds: 1
+            failureThreshold: 3
